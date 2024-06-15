@@ -178,4 +178,3 @@ async function proxy(urlObj, reqInit) {
         headers: resHdrNew,
     })
 }
-
