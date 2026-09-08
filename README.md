@@ -44,6 +44,7 @@ GitHub 文件/API 加速代理，跑在 Cloudflare Snippets 上。单文件、�
 
 1. 仓库 Settings → Pages → Source 选 `main`，目录选 `/ (root)`。
 2. 访问 `https://<user>.github.io/gh-proxy/`。
+3. 把 `index.html` 脚本开头的 `PROXY_ORIGIN` 改成你的代理地址（如 `https://gh.2719233.xyz/`），否则从 Pages 打开的落地页按钮会指向 Pages 自身而 404。
 
 ## 配置
 

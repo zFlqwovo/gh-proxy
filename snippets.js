@@ -25,6 +25,8 @@ const exp5 = /^(?:https?:\/\/)?gist\.(?:githubusercontent|github)\.com\/.+?\/.+?
 const exp6 = /^(?:https?:\/\/)?github\.com\/.+?\/.+?\/tags.*$/i
 const exp7 = /^(?:https?:\/\/)?api\.github\.com\/.*$/i
 
+const expBlobSeg = /^((?:https?:\/\/)?github\.com\/[^/]+\/[^/]+)\/(?:blob|raw)\//i
+
 const PROXY_EXPS = [exp1, exp3, exp4, exp5, exp6, exp7]
 const ALL_EXPS = [exp2, ...PROXY_EXPS]
 
@@ -35,6 +37,10 @@ function httpHandler(req, urlStr) {
 
     if (whiteList.length && !whiteList.some(w => urlStr.includes(w))) {
         return new Response('blocked', { status: 403 })
+    }
+
+    if (!/^https?:\/\//i.test(urlStr)) {
+        urlStr = 'https://' + urlStr
     }
 
     return proxy(new URL(urlStr), {
@@ -57,7 +63,7 @@ async function proxy(urlObj, reqInit, depth = 0) {
     if (loc) {
         if (ALL_EXPS.some(re => re.test(loc))) {
             resHdrNew.set('location', PREFIX + loc)
-        } else {
+        } else if (!reqInit.body) {
             reqInit.redirect = 'follow'
             return proxy(new URL(loc, urlObj), reqInit, depth + 1)
         }
@@ -78,7 +84,7 @@ export default {
             const urlObj = new URL(request.url)
 
             const q = urlObj.searchParams.get('q')
-            if (q) {
+            if (q && urlObj.pathname === PREFIX) {
                 return Response.redirect('https://' + urlObj.host + PREFIX + q, 301)
             }
 
@@ -89,11 +95,11 @@ export default {
             if (exp2.test(path)) {
                 if (Config.jsdelivr) {
                     const target = path
-                        .replace('/blob/', '@')
-                        .replace(/^(?:https?:\/\/)?github\.com/, 'https://cdn.jsdelivr.net/gh')
+                        .replace(expBlobSeg, '$1@')
+                        .replace(/^(?:https?:\/\/)?github\.com/i, 'https://cdn.jsdelivr.net/gh')
                     return Response.redirect(target, 302)
                 }
-                return httpHandler(request, path.replace('/blob/', '/raw/'))
+                return await httpHandler(request, path.replace(expBlobSeg, '$1/raw/'))
             }
 
             if (Config.jsdelivr && exp4.test(path)) {
@@ -104,10 +110,10 @@ export default {
             }
 
             if (PROXY_EXPS.some(re => re.test(path))) {
-                return httpHandler(request, path)
+                return await httpHandler(request, path)
             }
 
-            return fetch(ASSET_URL + path)
+            return await fetch(ASSET_URL + path)
         } catch (err) {
             return new Response('cfworker error:\n' + err.stack, {
                 status: 502,

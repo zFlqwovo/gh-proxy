@@ -1108,11 +1108,10 @@
         }
     }
 
+    const PROXY_ORIGIN = "https://gh.2719233.xyz/";
+
     function getBaseUrl() {
-        return (
-            location.origin +
-            location.pathname.replace(/\/?$/, "/")
-        );
+        return PROXY_ORIGIN;
     }
 
     function openProxy(value) {
