@@ -15,8 +15,8 @@ GitHub 文件与 API 加速代理，运行在 Cloudflare Snippets 或 Workers �
 把原始链接直接拼在代理地址后面：
 
 ```text
-https://gh.2719233.xyz/https://github.com/user/repo/releases/download/v1.0.0/file.zip
-https://gh.2719233.xyz/github.com/user/repo/blob/main/README.md
+https://gh.example.com/https://github.com/user/repo/releases/download/v1.0.0/file.zip
+https://gh.example.com/github.com/user/repo/blob/main/README.md
 ```
 
 `https://` 可以省略；也可以打开落地页，把链接粘进输入框。
@@ -39,7 +39,7 @@ https://gh.2719233.xyz/github.com/user/repo/blob/main/README.md
 ### Cloudflare Snippets
 
 1. 控制台 → 域名 → Rules → Snippets，新建 Snippet，粘贴 `snippets.js`。
-2. 匹配规则选「自定义筛选表达式」，例如 `(http.host eq "gh.2719233.xyz")`。
+2. 匹配规则选「自定义筛选表达式」，例如 `(http.host eq "gh.example.com")`。
 3. 把脚本开头的 `ASSET_URL` 改成你的落地页地址。
 
 > Snippets 只能挂在托管在 Cloudflare 的域名下；域名不在 Cloudflare 时请用 Worker 部署。
